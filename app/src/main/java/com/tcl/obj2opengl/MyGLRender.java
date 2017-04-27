@@ -23,6 +23,12 @@ public class MyGLRender implements GLSurfaceView.Renderer {
     private static final String TAG = MyGLRender.class.getSimpleName();
 
     private List<ObjRender> renders;
+    float[] matrix= {
+            1,0,0,0,
+            0,1,0,0,
+            0,0,1,0,
+            0,0,0,1
+    };
 
     public void setRenders(List<ObjRender> renders) {
         this.renders = renders;
@@ -34,29 +40,36 @@ public class MyGLRender implements GLSurfaceView.Renderer {
         GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1);
         //开启深度测试
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-        renders.get(0).create();
-       /* for (ObjRender r:renders){
+        //renders.get(0).create();
+        for (ObjRender r:renders){
+            tLog.i(TAG,"objrender = "+r+" create()");
             r.create();
-        }*/
+        }
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         tLog.i(TAG,"onSurfaceChanged()");
-        renders.get(0).setSize(width,height);
-        /*for (ObjRender r:renders){
+        //renders.get(0).setSize(width,height);
+        for (ObjRender r:renders){
+            tLog.i(TAG,"objrender = "+r+" setSize()");
             r.setSize(width,height);
-        }*/
+            Matrix.translateM(matrix,0,0,-0.3f,0);
+            Matrix.scaleM(matrix,0,0.008f,0.008f*width/height,0.008f);
+            r.setMatrix(matrix);
+        }
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         tLog.i(TAG,"onDrawFrame()");
-        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        renders.get(0).draw();
-        /*for (ObjRender r:renders){
+        /*GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);*/
+        //renders.get(0).draw();
+        for (ObjRender r:renders){
+            tLog.i(TAG,"objrender = "+r+" draw()");
+            Matrix.rotateM(matrix,0,0.3f,0,1,0);
             r.draw();
-        }*/
+        }
     }
 }

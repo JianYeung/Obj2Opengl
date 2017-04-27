@@ -32,6 +32,8 @@ public class ObjRender extends BasicRender {
     private int mHKs;
     private int mHMatrix;
 
+    protected float[] matrix;
+
     private float[] mViewMatrix=new float[16];
     private float[] mProjectMatrix=new float[16];
     private float[] mMVPMatrix=new float[16];
@@ -41,10 +43,14 @@ public class ObjRender extends BasicRender {
         tLog.i(TAG,"Res: "+ mRes);
     }
 
-    @Override
-    protected void create() {
-        tLog.i(TAG,"create()");
-        super.create();
+    public void setMatrix(float[] matrix) {
+        this.matrix = matrix;
+    }
+
+
+    public void setObj3D(Obj3D obj){
+        tLog.i(TAG,"obj = "+obj);
+        this.obj=obj;
     }
 
     @Override
@@ -53,14 +59,9 @@ public class ObjRender extends BasicRender {
         super.setSize(width, height);
     }
 
-    public void setObj3D(Obj3D obj){
-        tLog.i(TAG,"obj = "+obj);
-        this.obj=obj;
-    }
-
     @Override
     protected void onCreate() {
-        tLog.i(TAG,"onCreate()");
+        tLog.i(TAG,"obj = "+obj+" objrender = "+this +" onCreate()");
         createProgramByAssetsFile("3dres/obj2.vert","3dres/obj2.frag");
         mHPosition= GLES20.glGetAttribLocation(mProgram, "vPosition");
         mHNormal= GLES20.glGetAttribLocation(mProgram,"vNormal");
@@ -70,7 +71,8 @@ public class ObjRender extends BasicRender {
         mHKd=GLES20.glGetUniformLocation(mProgram,"vKd");
         mHKs=GLES20.glGetUniformLocation(mProgram,"vKs");
         mHMatrix=GLES20.glGetUniformLocation(mProgram,"vMatrix");
-
+        //开启深度测试
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         if(obj!=null&&obj.mtl!=null){
             try {
                 tLog.i(TAG,"texture-->"+"3dres/"+obj.mtl.map_Kd);
@@ -83,7 +85,7 @@ public class ObjRender extends BasicRender {
 
     @Override
     protected void onSizeChanged(int width, int height) {
-        tLog.i(TAG,"onSizeChanged()");
+        tLog.i(TAG,"obj = "+obj+" objrender = "+this +" onSizeChanged()");
         GLES20.glViewport(0,0,width,height);
         float ratio=(float)width/height;
         Matrix.frustumM(mProjectMatrix, 0, -ratio, ratio, -1, 1, 3, 20);
@@ -92,36 +94,26 @@ public class ObjRender extends BasicRender {
     }
 
     @Override
-    protected void draw() {
-        tLog.i(TAG,"draw()");
-        onClear();
-        onUseProgram();
-        onSetExpandData();
-        onBindTexture();
-        onDraw();
-    }
-
-    @Override
     protected void initBuffer() {
-        tLog.i(TAG,"initBuffer()");
-        super.initBuffer();
+        tLog.i(TAG,"obj = "+obj+" objrender = "+this +" initBuffer()");
     }
 
     @Override
     protected void onClear() {
-        tLog.i(TAG,"onClear()");
-        super.onClear();
+        tLog.i(TAG,"obj = "+obj+" objrender = "+this +" onClear()");
+       /* GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);*/
     }
 
     @Override
     protected void onUseProgram() {
-        tLog.i(TAG,"onUseProgram()");
-        super.onUseProgram();
+        tLog.i(TAG,"obj = "+obj+" objrender = "+this +" onUseProgram()");
+        GLES20.glUseProgram(mProgram);
     }
 
     @Override
     protected void onBindTexture() {
-        tLog.i(TAG,"onBindTexture()");
+        tLog.i(TAG,"obj = "+obj+" objrender = "+this +" onBindTexture()");
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0+textureId);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,textureId);
         GLES20.glUniform1i(mHTexture,textureId);
@@ -129,7 +121,8 @@ public class ObjRender extends BasicRender {
 
     @Override
     protected void onSetExpandData() {
-        tLog.i(TAG,"onSetExpandData()");
+        tLog.i(TAG,"obj = "+obj+" objrender = "+this +" onSetExpandData()");
+        //GLES20.glUniformMatrix4fv(mHMatrix,1,false,matrix,0);
         GLES20.glUniformMatrix4fv(mHMatrix,1,false,mMVPMatrix,0);
         if(obj!=null&&obj.mtl!=null){
             GLES20.glUniform3fv(mHKa,1,obj.mtl.Ka,0);
@@ -140,9 +133,10 @@ public class ObjRender extends BasicRender {
 
     @Override
     protected void onDraw() {
-        tLog.i(TAG,"onDraw()");
+        tLog.i(TAG,"obj = "+obj+" objrender = "+this +" onDraw()");
         GLES20.glEnableVertexAttribArray(mHPosition);
         GLES20.glVertexAttribPointer(mHPosition,3, GLES20.GL_FLOAT, false,0,obj.vert);
+        tLog.i(TAG,"obj = "+obj+" objrender = "+this +" onDraw()"+" obj.vertCount = "+obj.vertCount);
         GLES20.glEnableVertexAttribArray(mHNormal);
         GLES20.glVertexAttribPointer(mHNormal,3, GLES20.GL_FLOAT, false, 0,obj.vertNormals);
         GLES20.glEnableVertexAttribArray(mHCoord);

@@ -6,6 +6,9 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.util.Arrays;
 
 /**
@@ -22,12 +25,11 @@ public abstract class BasicRender {
     private static final String TAG = BasicRender.class.getSimpleName();
 
     protected Resources mRes;
-    protected float[] matrix;
     protected int mProgram;
 
     public BasicRender(Resources mRes) {
         this.mRes = mRes;
-        initBuffer();
+        //initBuffer();
         tLog.i(TAG,"super Res: "+ mRes);
     }
 
@@ -42,54 +44,38 @@ public abstract class BasicRender {
     }
 
     protected void draw() {
-      /*  tLog.i(TAG,"super draw()");
+        tLog.i(TAG,"super draw()");
         onClear();
         onUseProgram();
         onSetExpandData();
         onBindTexture();
-        onDraw();*/
+        onDraw();
     }
 
-    protected void initBuffer() {
-        tLog.i(TAG,"super initBuffer()");
-    }
-
-    protected final void createProgramByAssetsFile(String vertex, String fragment) {
-        mProgram = createProgram(getShaderCodeFromRes(mRes, vertex), getShaderCodeFromRes(mRes, fragment));
-    }
-
-    protected void onClear() {
-        tLog.i(TAG,"super onClear()");
-        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-    }
-
-
-    protected void onUseProgram() {
-        tLog.i(TAG,"super onUseProgram()");
-        GLES20.glUseProgram(mProgram);
-    }
-
-
-    protected void onBindTexture() {
-        tLog.i(TAG,"super onBindTexture()");
-    }
-
-    protected void onSetExpandData() {
-        tLog.i(TAG,"super onSetExpandData()");
-    }
-
-    protected void onDraw() {
-        tLog.i(TAG,"super onDraw()");
-    }
+    protected abstract void initBuffer();
 
     protected abstract void onCreate();
+
     protected abstract void onSizeChanged(int width,int height);
+
+    protected abstract void onClear();
+
+    protected abstract void onUseProgram();
+
+    protected abstract void onBindTexture();
+
+    protected abstract void onSetExpandData();
+
+    protected abstract void onDraw();
 
     public static void glError(int code, Object index) {
         if (code != 0) {
             tLog.e(TAG, "glError:" + code + "---" + index);
         }
+    }
+
+    protected final void createProgramByAssetsFile(String vertex, String fragment) {
+        mProgram = createProgram(getShaderCodeFromRes(mRes, vertex), getShaderCodeFromRes(mRes, fragment));
     }
 
     //通过路径加载Assets中的文本内容
