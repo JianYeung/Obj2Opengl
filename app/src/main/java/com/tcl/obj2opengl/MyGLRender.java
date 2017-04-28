@@ -15,61 +15,54 @@ import javax.microedition.khronos.opengles.GL10;
  * 文件名：   MyGLRender
  * 创建者：   root
  * 创建时间： 17-4-27 下午3:03
- * 描述：     TODO
+ * 描述：     渲染类
  */
 
 public class MyGLRender implements GLSurfaceView.Renderer {
 
     private static final String TAG = MyGLRender.class.getSimpleName();
 
-    private List<ObjRender> renders;
-    float[] matrix= {
-            1,0,0,0,
-            0,1,0,0,
-            0,0,1,0,
-            0,0,0,1
-    };
+    private List<ObjRender> filters;
 
-    public void setRenders(List<ObjRender> renders) {
-        this.renders = renders;
+
+    public void setRenders(List<ObjRender> filters) {
+        tLog.i(TAG,"setRenders()");
+        this.filters = filters;
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         tLog.i(TAG,"onSurfaceCreated()");
-        GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1);
-        //开启深度测试
-        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-        //renders.get(0).create();
-        for (ObjRender r:renders){
-            tLog.i(TAG,"objrender = "+r+" create()");
-            r.create();
+        for (ObjRender f:filters){
+            f.create();
         }
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         tLog.i(TAG,"onSurfaceChanged()");
-        //renders.get(0).setSize(width,height);
-        for (ObjRender r:renders){
-            tLog.i(TAG,"objrender = "+r+" setSize()");
-            r.setSize(width,height);
+        for (ObjRender f:filters){
+            f.onSizeChanged(width, height);
+            float[] matrix= {
+                    1,0,0,0,
+                    0,1,0,0,
+                    0,0,1,0,
+                    0,0,0,1
+            };
             Matrix.translateM(matrix,0,0,-0.3f,0);
             Matrix.scaleM(matrix,0,0.008f,0.008f*width/height,0.008f);
-            r.setMatrix(matrix);
+            f.setMatrix(matrix);
         }
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         tLog.i(TAG,"onDrawFrame()");
-        /*GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);*/
-        //renders.get(0).draw();
-        for (ObjRender r:renders){
-            tLog.i(TAG,"objrender = "+r+" draw()");
-            Matrix.rotateM(matrix,0,0.3f,0,1,0);
-            r.draw();
+        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        for (ObjRender f:filters){
+            Matrix.rotateM(f.getMatrix(),0,0.3f,0,1,0);
+            f.draw();
         }
     }
 }

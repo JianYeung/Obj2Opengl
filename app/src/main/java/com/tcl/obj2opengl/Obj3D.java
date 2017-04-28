@@ -33,6 +33,7 @@ public class Obj3D {
     public int textureTMode;
 
     public void addVert(float d){
+        tLog.i(TAG,"addVert()");
         if(tempVert==null){
             tempVert=new ArrayList<>();
         }
@@ -40,6 +41,7 @@ public class Obj3D {
     }
 
     public void addVertTexture(float d){
+        tLog.i(TAG,"addVertTexture()");
         if(tempVertTexture==null){
             tempVertTexture=new ArrayList<>();
         }
@@ -47,6 +49,7 @@ public class Obj3D {
     }
 
     public void addVertNorl(float d){
+        tLog.i(TAG,"addVertNorl()");
         if(tempVertNorl==null){
             tempVertNorl=new ArrayList<>();
         }
@@ -54,6 +57,7 @@ public class Obj3D {
     }
 
     public void dataLock(){
+        tLog.i(TAG,"dataLock()");
         if(tempVert!=null){
             setVert(tempVert);
             tempVert.clear();
@@ -72,6 +76,7 @@ public class Obj3D {
     }
 
     public void setVert(ArrayList<Float> data){
+        tLog.i(TAG,"setVert()");
         int size=data.size();
         ByteBuffer buffer=ByteBuffer.allocateDirect(size*4);
         buffer.order(ByteOrder.nativeOrder());
@@ -84,6 +89,7 @@ public class Obj3D {
     }
 
     public void setVertNorl(ArrayList<Float> data){
+        tLog.i(TAG,"setVertNorl()");
         int size=data.size();
         ByteBuffer buffer=ByteBuffer.allocateDirect(size*4);
         buffer.order(ByteOrder.nativeOrder());
@@ -95,6 +101,7 @@ public class Obj3D {
     }
 
     public void setVertTexture(ArrayList<Float> data){
+        tLog.i(TAG,"setVertTexture()");
         int size=data.size();
         ByteBuffer buffer=ByteBuffer.allocateDirect(size*4);
         buffer.order(ByteOrder.nativeOrder());

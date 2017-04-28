@@ -6,10 +6,7 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.util.Arrays;
+
 
 /**
  * 项目名：   Obj2Opengl
@@ -26,24 +23,65 @@ public abstract class BasicRender {
 
     protected Resources mRes;
     protected int mProgram;
+    protected int mHPosition;
+    protected int mHCoord;
+    protected int mHNormal;
+    protected int mHKa;
+    protected int mHKd;
+    protected int mHKs;
+    protected int mHMatrix;
+
+    protected int mHTexture;
+    protected int textureType = 0;
+    protected int textureId = 0;
+
+    protected float[] matrix = new float[16];
+    protected float[] mViewMatrix=new float[16];
+    protected float[] mProjectMatrix=new float[16];
+    protected float[] mMVPMatrix=new float[16];
 
     public BasicRender(Resources mRes) {
         this.mRes = mRes;
-        //initBuffer();
         tLog.i(TAG,"super Res: "+ mRes);
+        initBuffer();
     }
 
-    protected void create() {
+    public int getTextureType() {
+        return textureType;
+    }
+
+    public void setTextureType(int textureType) {
+        this.textureType = textureType;
+    }
+
+    public final int getTextureId() {
+        return textureId;
+    }
+
+    public final void setTextureId(int textureId) {
+        this.textureId = textureId;
+    }
+
+    public float[] getMatrix() {
+        return matrix;
+    }
+
+    public void setMatrix(float[] matrix) {
+        this.matrix = matrix;
+    }
+
+
+    public final void create() {
         tLog.i(TAG,"super create()");
         onCreate();
     }
 
-    protected void setSize(int width, int height) {
+    public final void setSize(int width, int height) {
         tLog.i(TAG,"super setSize()");
         onSizeChanged(width,height);
     }
 
-    protected void draw() {
+    public void draw() {
         tLog.i(TAG,"super draw()");
         onClear();
         onUseProgram();
@@ -52,34 +90,55 @@ public abstract class BasicRender {
         onDraw();
     }
 
-    protected abstract void initBuffer();
+    protected void initBuffer(){
+        tLog.i(TAG,"super initBuffer()");
+    }
+
+    protected void onClear(){
+        tLog.i(TAG,"super onClear()");
+        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+    }
+
+    protected void onUseProgram(){
+        tLog.i(TAG,"super onUseProgram()");
+        GLES20.glUseProgram(mProgram);
+    }
+
+    protected void onBindTexture(){
+        tLog.i(TAG,"super onBindTexture()");
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0+textureType);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,textureId);
+        GLES20.glUniform1i(mHTexture,textureType);
+    }
+
+    protected void onSetExpandData(){
+        tLog.i(TAG,"super onSetExpandData()");
+        GLES20.glUniformMatrix4fv(mHMatrix,1,false,matrix,0);
+    }
+
+    protected void onDraw(){
+        tLog.i(TAG,"super onDraw()");
+    }
 
     protected abstract void onCreate();
 
     protected abstract void onSizeChanged(int width,int height);
 
-    protected abstract void onClear();
-
-    protected abstract void onUseProgram();
-
-    protected abstract void onBindTexture();
-
-    protected abstract void onSetExpandData();
-
-    protected abstract void onDraw();
-
     public static void glError(int code, Object index) {
+        tLog.i(TAG,"super glError()");
         if (code != 0) {
             tLog.e(TAG, "glError:" + code + "---" + index);
         }
     }
 
-    protected final void createProgramByAssetsFile(String vertex, String fragment) {
+    protected void createProgramByAssetsFile(String vertex, String fragment) {
+        tLog.i(TAG,"super createProgramByAssetsFile()");
         mProgram = createProgram(getShaderCodeFromRes(mRes, vertex), getShaderCodeFromRes(mRes, fragment));
     }
 
     //通过路径加载Assets中的文本内容
-    public static String getShaderCodeFromRes(Resources mRes, String path) {
+    protected static String getShaderCodeFromRes(Resources mRes, String path) {
         tLog.i(TAG,"super getShaderCodeFromRes()");
         StringBuilder result = new StringBuilder();
         try {
@@ -96,7 +155,7 @@ public abstract class BasicRender {
     }
 
     //加载shader
-    public static int loadShader(int shaderType, String source) {
+    protected static int loadShader(int shaderType, String source) {
         tLog.i(TAG,"super loadShader()");
         int shader = GLES20.glCreateShader(shaderType);
         if (0 != shader) {
@@ -116,7 +175,7 @@ public abstract class BasicRender {
 
 
     //创建GL程序
-    public static int createProgram(String vertexSource, String fragmentSource) {
+    protected static int createProgram(String vertexSource, String fragmentSource) {
         tLog.i(TAG,"super createProgram()");
         int vertex = loadShader(GLES20.GL_VERTEX_SHADER, vertexSource);
         if (vertex == 0) return 0;
@@ -138,7 +197,7 @@ public abstract class BasicRender {
         return program;
     }
 
-    protected int createTexture(Bitmap bitmap) {
+    protected static int createTexture(Bitmap bitmap) {
         tLog.i(TAG,"super createTexture()");
         int[] texture = new int[1];
         if (bitmap != null && !bitmap.isRecycled()) {
@@ -160,5 +219,4 @@ public abstract class BasicRender {
         }
         return 0;
     }
-
 }
